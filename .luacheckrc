@@ -1,7 +1,6 @@
 std = "lua54+playdate"
 globals = {
-    "playdate",
-    "game"
+    "playdate"
 }
 read_globals = {
     "import"
