@@ -1,12 +1,16 @@
 import "CoreLibs/object"
 
+import "tetromino"
+
 local pd <const> = playdate
 
 class("Tetris").extends()
 
 function Tetris:init(rows, columns)
+    self.currentTetromino = nil
+
     self.field = buildField(rows, columns)
-    self.inputHandler = buildInputHandler()
+    self.inputHandler = self:buildInputHandler()
 end
 
 -- rows - vertical dimension, row, like Y coordinate
@@ -27,13 +31,13 @@ function buildField(rows, columns)
     return field
 end
 
-function buildInputHandler()
+function Tetris:buildInputHandler()
     local rightButtonTimer
 
     return {
         rightButtonDown = function()
             rightButtonTimer = pd.timer.keyRepeatTimer(function()
-                print("rightButtonDown")
+                self:moveTetrominoRight()
             end)
         end,
         rightButtonUp = function()
@@ -46,7 +50,31 @@ function Tetris:GetInputHandler()
     return self.inputHandler
 end
 
+function Tetris:moveTetrominoRight()
+    self:removeTetrominoFromField()
+    self.currentTetromino.x += 1
+    self:placeTetrominoOnField()
+
+end
+
+function Tetris:placeTetrominoOnField()
+    self.field[self.currentTetromino.y][self.currentTetromino.x] += 1
+end
+
+function Tetris:removeTetrominoFromField()
+    self.field[self.currentTetromino.y][self.currentTetromino.x] -= 1
+end
+
 function Tetris:Update(fnDrawOnField)
+    if (self.currentTetromino == nil) then
+        self.currentTetromino = Tetromino(9, 1)
+        self:placeTetrominoOnField()
+    end
+
+    self:draw(fnDrawOnField)
+end
+
+function Tetris:draw(fnDrawOnField)
     for i = 1, #self.field do
         for j = 1, #self.field[i] do
             local isActive = self.field[i][j] > 0

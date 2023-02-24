@@ -103,26 +103,7 @@ function Field:GetDimensions()
     return self.rows, self.columns
 end
 
-function Field:Draw()
-    -- gfx.drawRect(fieldRect)
-
-
-
-
-    -- tileImage:draw(10, 10)
-    -- tileImage:draw(21, 21)
-
-    -- for i = 0, 9, 1 do
-    --     for j = 0, 19, 1 do
-    --         local x <const> = self.fieldRect.x + i * (self.tileSize + self.tilePadding)
-    --         local y <const> = self.fieldRect.y + j * (self.tileSize + self.tilePadding)
-    --         tileImage:draw(x, y)
-    --     end
-    -- end
-end
-
 function Field:DrawAt(x, y, isActive)
-    print("DrawAt", x, y, isActive)
     local image
     if (isActive) then
         image = self.imageOn
