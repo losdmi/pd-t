@@ -86,7 +86,7 @@ function Field:buildField()
     for i = 1, self.rows do
         field[i] = {}
         for j = 1, self.columns do
-            local sprite <const> = gfx.sprite.new()
+            local sprite <const> = gfx.sprite.new(self.imageOff)
             local x <const> = self.fieldRect.x + (j - 1) * (self.tileSize + self.tilePadding)
             local y <const> = self.fieldRect.y + (i - 1) * (self.tileSize + self.tilePadding)
             sprite:setCenter(0, 0)
@@ -105,7 +105,7 @@ end
 
 function Field:DrawAt(x, y, isActive)
     local image
-    if (isActive) then
+    if isActive then
         image = self.imageOn
     else
         image = self.imageOff

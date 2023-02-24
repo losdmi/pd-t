@@ -9,6 +9,9 @@ class("Tetris").extends()
 function Tetris:init(rows, columns)
     self.currentTetromino = nil
 
+    self.rows = rows
+    self.columns = columns
+
     self.field = buildField(rows, columns)
     self.inputHandler = self:buildInputHandler()
 end
@@ -32,9 +35,36 @@ function buildField(rows, columns)
 end
 
 function Tetris:buildInputHandler()
-    local rightButtonTimer
+    local upButtonTimer, leftButtonTimer, downButtonTimer, rightButtonTimer
 
     return {
+        upButtonDown = function()
+            upButtonTimer = pd.timer.keyRepeatTimer(function()
+                self:moveTetrominoUp()
+            end)
+        end,
+        upButtonUp = function()
+            upButtonTimer:remove()
+        end,
+
+        leftButtonDown = function()
+            leftButtonTimer = pd.timer.keyRepeatTimer(function()
+                self:moveTetrominoLeft()
+            end)
+        end,
+        leftButtonUp = function()
+            leftButtonTimer:remove()
+        end,
+
+        downButtonDown = function()
+            downButtonTimer = pd.timer.keyRepeatTimer(function()
+                self:moveTetrominoDown()
+            end)
+        end,
+        downButtonUp = function()
+            downButtonTimer:remove()
+        end,
+
         rightButtonDown = function()
             rightButtonTimer = pd.timer.keyRepeatTimer(function()
                 self:moveTetrominoRight()
@@ -50,11 +80,61 @@ function Tetris:GetInputHandler()
     return self.inputHandler
 end
 
-function Tetris:moveTetrominoRight()
+function Tetris:moveTetromino(fnUpdateAndCheck)
     self:removeTetrominoFromField()
-    self.currentTetromino.x += 1
+    fnUpdateAndCheck()
     self:placeTetrominoOnField()
+end
 
+function Tetris:moveTetrominoUp()
+    self:moveTetromino(function ()
+        local oldY <const> = self.currentTetromino.y
+        self.currentTetromino.y -= 1
+        if self:isTetrominoPositionInvalid() then
+            self.currentTetromino.y = oldY
+        end
+    end)
+end
+
+function Tetris:moveTetrominoLeft()
+    self:moveTetromino(function ()
+        local oldX <const> = self.currentTetromino.x
+        self.currentTetromino.x -= 1
+        if self:isTetrominoPositionInvalid() then
+            self.currentTetromino.x = oldX
+        end
+    end)
+end
+
+function Tetris:moveTetrominoDown()
+    self:moveTetromino(function ()
+        local oldY <const> = self.currentTetromino.y
+        self.currentTetromino.y += 1
+        if self:isTetrominoPositionInvalid() then
+            self.currentTetromino.y = oldY
+        end
+    end)
+end
+
+function Tetris:moveTetrominoRight()
+    self:moveTetromino(function ()
+        local oldX <const> = self.currentTetromino.x
+        self.currentTetromino.x += 1
+        if self:isTetrominoPositionInvalid() then
+            self.currentTetromino.x = oldX
+        end
+    end)
+end
+
+function Tetris:isTetrominoPositionInvalid()
+    if self.currentTetromino.x < 1 or
+    self.currentTetromino.x > self.columns or
+    self.currentTetromino.y < 1 or
+    self.currentTetromino.y > self.rows then
+        return true
+    end
+
+    return false
 end
 
 function Tetris:placeTetrominoOnField()
@@ -66,8 +146,8 @@ function Tetris:removeTetrominoFromField()
 end
 
 function Tetris:Update(fnDrawOnField)
-    if (self.currentTetromino == nil) then
-        self.currentTetromino = Tetromino(9, 1)
+    if self.currentTetromino == nil then
+        self.currentTetromino = Tetromino(1, 1)
         self:placeTetrominoOnField()
     end
 
