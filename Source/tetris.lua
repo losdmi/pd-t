@@ -73,6 +73,14 @@ function Tetris:buildInputHandler()
         rightButtonUp = function()
             rightButtonTimer:remove()
         end,
+
+        AButtonDown = function()
+            self:rotateTetromino("right")
+        end,
+
+        BButtonDown = function()
+            self:rotateTetromino("left")
+        end
     }
 end
 
@@ -84,6 +92,50 @@ function Tetris:createNewTetromino()
     local initialX <const> = self.columns / 2 - 1
     self.currentTetromino = Tetromino(initialX, 1, 1)
     self:placeTetrominoOnField()
+end
+
+function Tetris:rotateTetromino(direction)
+    self:moveTetromino(function ()
+        if direction == "right" then
+            self.currentTetromino:RotateRight()
+            if self:isTetrominoPositionInvalid() then
+                local success = self:tryToRecoverTetrominoRotation()
+                if not success then
+                    self.currentTetromino:RotateLeft()
+                end
+            end
+        end
+        if direction == "left" then
+            self.currentTetromino:RotateLeft()
+            if self:isTetrominoPositionInvalid() then
+                local success = self:tryToRecoverTetrominoRotation()
+                if not success then
+                    self.currentTetromino:RotateRight()
+                end
+            end
+        end
+    end)
+end
+
+function Tetris:tryToRecoverTetrominoRotation()
+    local currentX, currentY = self.currentTetromino.x, self.currentTetromino.y
+
+    local deltas <const> = {
+        {x=-1, y=0},
+        {x=1, y=0},
+        {x=0, y=-1},
+    }
+
+    for _, d in ipairs(deltas) do
+        dx, dy = d.x, d.y
+        self.currentTetromino.x = currentX + dx
+        self.currentTetromino.y = currentY + dy
+        if not self:isTetrominoPositionInvalid() then
+            return true
+        end
+    end
+
+    return false
 end
 
 function Tetris:moveTetromino(fnUpdateAndCheck)
@@ -147,19 +199,19 @@ function Tetris:isTetrominoPositionInvalid()
         end
     end
 
-    self.currentTetromino:forEachBrick(isBrickPositionInvalid)
+    self.currentTetromino:ForEachBrick(isBrickPositionInvalid)
 
     return isInvalid
 end
 
 function Tetris:placeTetrominoOnField()
-    self.currentTetromino:forEachBrick(function (x, y)
+    self.currentTetromino:ForEachBrick(function (x, y)
         self.field[y][x] += 1
     end)
 end
 
 function Tetris:removeTetrominoFromField()
-    self.currentTetromino:forEachBrick(function (x, y)
+    self.currentTetromino:ForEachBrick(function (x, y)
         self.field[y][x] -= 1
     end)
 end

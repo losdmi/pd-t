@@ -22,7 +22,7 @@ function Tetromino:init(x, y, rotation)
     }
 end
 
-function Tetromino:forEachBrick(fn)
+function Tetromino:ForEachBrick(fn)
     local brickNumber
     for i = 1, self.tetrominoGridSize do
         for j = 1, self.tetrominoGridSize do
@@ -33,4 +33,18 @@ function Tetromino:forEachBrick(fn)
             end
         end
     end
+end
+
+function Tetromino:rotate(delta)
+    self.rotation = (self.rotation + delta) % #self.rotations
+    if self.rotation < 1 then
+        self.rotation += #self.rotations
+    end
+end
+
+function Tetromino:RotateLeft()
+    self:rotate(-1)
+end
+function Tetromino:RotateRight()
+    self:rotate(1)
 end
