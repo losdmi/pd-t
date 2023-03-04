@@ -129,8 +129,9 @@ end
 function Tetris:isTetrominoPositionInvalid()
     local isInvalid = false
     local isBrickPositionInvalid <const> = function (x, y)
-        if x < 1 or self.columns < x  or
-        y < 1 or self.rows < y  then
+        if x < 1 or self.columns < x or
+        y < 1 or self.rows < y or
+        self.field[y][x] > 0 then
             isInvalid = true
         end
     end
@@ -154,7 +155,8 @@ end
 
 function Tetris:Update(fnDrawOnField)
     if self.currentTetromino == nil then
-        self.currentTetromino = Tetromino(1, 1, 1)
+        local initialX <const> = self.columns / 2 - 1
+        self.currentTetromino = Tetromino(initialX, 1, 1)
         self:placeTetrominoOnField()
     end
 
