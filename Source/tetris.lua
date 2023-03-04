@@ -90,7 +90,7 @@ end
 
 function Tetris:createNewTetromino()
     local initialX <const> = self.columns / 2 - 1
-    self.currentTetromino = Tetromino(initialX, 1, 1)
+    self.currentTetromino = Tetromino(initialX, 1, "Z")
     self:placeTetrominoOnField()
 end
 
@@ -98,32 +98,41 @@ function Tetris:rotateTetromino(direction)
     self:moveTetromino(function ()
         if direction == "right" then
             self.currentTetromino:RotateRight()
-            if self:isTetrominoPositionInvalid() then
-                local success = self:tryToRecoverTetrominoRotation()
-                if not success then
-                    self.currentTetromino:RotateLeft()
-                end
+            local success = self:tryPlaceTetrominoWithOffset()
+            if not success then
+                self.currentTetromino:RotateLeft()
             end
         end
         if direction == "left" then
             self.currentTetromino:RotateLeft()
-            if self:isTetrominoPositionInvalid() then
-                local success = self:tryToRecoverTetrominoRotation()
-                if not success then
-                    self.currentTetromino:RotateRight()
-                end
+            local success = self:tryPlaceTetrominoWithOffset()
+            if not success then
+                self.currentTetromino:RotateRight()
             end
         end
     end)
 end
 
-function Tetris:tryToRecoverTetrominoRotation()
+function Tetris:tryPlaceTetrominoWithOffset()
     local currentX, currentY = self.currentTetromino.x, self.currentTetromino.y
 
     local deltas <const> = {
+        {x=0, y=0},
+
         {x=-1, y=0},
-        {x=1, y=0},
-        {x=0, y=-1},
+        {x=1,  y=0},
+        {x=0,  y=-1},
+        {x=0,  y=1},
+
+        {x=-1, y=-1},
+        {x=1,  y=-1},
+        {x=-1, y=1},
+        {x=1,  y=1},
+
+        {x=-2, y=0},
+        {x=2,  y=0},
+        {x=0,  y=-2},
+        {x=0,  y=2},
     }
 
     for _, d in ipairs(deltas) do
@@ -134,6 +143,9 @@ function Tetris:tryToRecoverTetrominoRotation()
             return true
         end
     end
+
+    self.currentTetromino.x = currentX
+    self.currentTetromino.y = currentY
 
     return false
 end
