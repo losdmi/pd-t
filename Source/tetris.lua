@@ -13,6 +13,8 @@ function Tetris:init(rows, columns)
     self.field = buildField(rows, columns)
     self.inputHandler = self:buildInputHandler()
 
+    self.tetrominosBag = {}
+    self:initTetrominosBag()
     self:createNewTetromino()
 end
 
@@ -88,9 +90,27 @@ function Tetris:GetInputHandler()
     return self.inputHandler
 end
 
+function Tetris:initTetrominosBag()
+    local amount = 4
+    self.tetrominosBag = {}
+    for _, s in ipairs(GetShapes()) do
+        for _ = 1, amount do
+            table.insert(self.tetrominosBag, s)
+        end
+    end
+    printTable(self.tetrominosBag)
+end
+
+function Tetris:getNextShape()
+    if #self.tetrominosBag == 0 then
+        self:initTetrominosBag()
+    end
+    return table.remove(self.tetrominosBag, math.random(#self.tetrominosBag))
+end
+
 function Tetris:createNewTetromino()
     local initialX <const> = self.columns / 2 - 1
-    self.currentTetromino = Tetromino(initialX, 1, "Z")
+    self.currentTetromino = Tetromino(initialX, 1, self:getNextShape())
     self:placeTetrominoOnField()
 end
 

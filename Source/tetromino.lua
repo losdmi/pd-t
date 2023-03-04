@@ -47,6 +47,15 @@ local shapeRotations <const> = {
     },
 }
 
+function GetShapes()
+    local shapes <const> = {}
+    for k, _ in pairs(shapeRotations) do
+        table.insert(shapes, k)
+    end
+
+    return shapes
+end
+
 class("Tetromino").extends()
 
 function Tetromino:init(x, y, shape)
