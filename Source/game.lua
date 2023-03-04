@@ -22,6 +22,10 @@ function Game:Update()
     local drawAt <const> = function (x, y, isActive)
         return self.field:DrawAt(x, y, isActive)
     end
-    self.logic:Update(drawAt)
+    local isGameOver <const> = self.logic:Update(drawAt)
     self.field:Update()
+
+    if isGameOver then
+        pd.inputHandlers.pop()
+    end
 end

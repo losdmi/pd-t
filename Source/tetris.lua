@@ -11,7 +11,11 @@ function Tetris:init(rows, columns)
     self.columns = columns
 
     self.field = buildField(rows, columns)
+
+    self.timers = {}
     self.inputHandler = self:buildInputHandler()
+
+    self.isGameOver = false
 
     self.tetrominosBag = {}
     self:initTetrominosBag()
@@ -31,53 +35,51 @@ function buildField(rows, columns)
         end
     end
 
-    field[2][3] = 1
+    field[5][5] = 1
 
     return field
 end
 
 function Tetris:buildInputHandler()
-    local upButtonTimer, leftButtonTimer, downButtonTimer, rightButtonTimer
-
     local function buildTimer(fn)
         return pd.timer.keyRepeatTimerWithDelay(200, 100, fn)
     end
 
     return {
         upButtonDown = function()
-            upButtonTimer = buildTimer(function()
+            self.timers["upButtonTimer"] = buildTimer(function()
                 self:moveTetrominoUp()
             end)
         end,
         upButtonUp = function()
-            upButtonTimer:remove()
+            self.timers["upButtonTimer"]:remove()
         end,
 
         leftButtonDown = function()
-            leftButtonTimer = buildTimer(function()
+            self.timers["leftButtonTimer"] = buildTimer(function()
                 self:moveTetrominoLeft()
             end)
         end,
         leftButtonUp = function()
-            leftButtonTimer:remove()
+            self.timers["leftButtonTimer"]:remove()
         end,
 
         downButtonDown = function()
-            downButtonTimer = buildTimer(function()
+            self.timers["downButtonTimer"] = buildTimer(function()
                 self:moveTetrominoDown()
             end)
         end,
         downButtonUp = function()
-            downButtonTimer:remove()
+            self.timers["downButtonTimer"]:remove()
         end,
 
         rightButtonDown = function()
-            rightButtonTimer = buildTimer(function()
+            self.timers["rightButtonTimer"] = buildTimer(function()
                 self:moveTetrominoRight()
             end)
         end,
         rightButtonUp = function()
-            rightButtonTimer:remove()
+            self.timers["rightButtonTimer"]:remove()
         end,
 
         AButtonDown = function()
@@ -114,7 +116,22 @@ end
 function Tetris:createNewTetromino()
     local initialX <const> = self.columns / 2 - 1
     self.currentTetromino = Tetromino(initialX, 1, self:getNextShape())
+    if self:isTetrominoPositionInvalid() then
+        self:gameOver()
+    end
     self:placeTetrominoOnField()
+end
+
+function Tetris:gameOver()
+    self.isGameOver = true
+    self:removeTimers()
+    print("game over")
+end
+
+function Tetris:removeTimers()
+    for _, t in pairs(self.timers) do
+        t:remove()
+    end
 end
 
 function Tetris:rotateTetromino(direction)
@@ -253,6 +270,7 @@ end
 
 function Tetris:Update(fnDrawOnField)
     self:draw(fnDrawOnField)
+    return self.isGameOver
 end
 
 function Tetris:draw(fnDrawOnField)
