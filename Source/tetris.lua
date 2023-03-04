@@ -39,9 +39,13 @@ end
 function Tetris:buildInputHandler()
     local upButtonTimer, leftButtonTimer, downButtonTimer, rightButtonTimer
 
+    local function buildTimer(fn)
+        return pd.timer.keyRepeatTimerWithDelay(200, 100, fn)
+    end
+
     return {
         upButtonDown = function()
-            upButtonTimer = pd.timer.keyRepeatTimer(function()
+            upButtonTimer = buildTimer(function()
                 self:moveTetrominoUp()
             end)
         end,
@@ -50,7 +54,7 @@ function Tetris:buildInputHandler()
         end,
 
         leftButtonDown = function()
-            leftButtonTimer = pd.timer.keyRepeatTimer(function()
+            leftButtonTimer = buildTimer(function()
                 self:moveTetrominoLeft()
             end)
         end,
@@ -59,7 +63,7 @@ function Tetris:buildInputHandler()
         end,
 
         downButtonDown = function()
-            downButtonTimer = pd.timer.keyRepeatTimer(function()
+            downButtonTimer = buildTimer(function()
                 self:moveTetrominoDown()
             end)
         end,
@@ -68,7 +72,7 @@ function Tetris:buildInputHandler()
         end,
 
         rightButtonDown = function()
-            rightButtonTimer = pd.timer.keyRepeatTimer(function()
+            rightButtonTimer = buildTimer(function()
                 self:moveTetrominoRight()
             end)
         end,
@@ -98,7 +102,6 @@ function Tetris:initTetrominosBag()
             table.insert(self.tetrominosBag, s)
         end
     end
-    printTable(self.tetrominosBag)
 end
 
 function Tetris:getNextShape()
