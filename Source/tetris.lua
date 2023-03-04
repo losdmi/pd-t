@@ -7,13 +7,13 @@ local pd <const> = playdate
 class("Tetris").extends()
 
 function Tetris:init(rows, columns)
-    self.currentTetromino = nil
-
     self.rows = rows
     self.columns = columns
 
     self.field = buildField(rows, columns)
     self.inputHandler = self:buildInputHandler()
+
+    self:createNewTetromino()
 end
 
 -- rows - vertical dimension, row, like Y coordinate
@@ -80,10 +80,20 @@ function Tetris:GetInputHandler()
     return self.inputHandler
 end
 
+function Tetris:createNewTetromino()
+    local initialX <const> = self.columns / 2 - 1
+    self.currentTetromino = Tetromino(initialX, 1, 1)
+    self:placeTetrominoOnField()
+end
+
 function Tetris:moveTetromino(fnUpdateAndCheck)
     self:removeTetrominoFromField()
-    fnUpdateAndCheck()
+    local isTetrominoFixed = fnUpdateAndCheck()
     self:placeTetrominoOnField()
+
+    if isTetrominoFixed then
+        self:createNewTetromino()
+    end
 end
 
 function Tetris:moveTetrominoUp()
@@ -112,6 +122,7 @@ function Tetris:moveTetrominoDown()
         self.currentTetromino.y += 1
         if self:isTetrominoPositionInvalid() then
             self.currentTetromino.y = oldY
+            return true
         end
     end)
 end
@@ -154,12 +165,6 @@ function Tetris:removeTetrominoFromField()
 end
 
 function Tetris:Update(fnDrawOnField)
-    if self.currentTetromino == nil then
-        local initialX <const> = self.columns / 2 - 1
-        self.currentTetromino = Tetromino(initialX, 1, 1)
-        self:placeTetrominoOnField()
-    end
-
     self:draw(fnDrawOnField)
 end
 
