@@ -127,27 +127,34 @@ function Tetris:moveTetrominoRight()
 end
 
 function Tetris:isTetrominoPositionInvalid()
-    if self.currentTetromino.x < 1 or
-    self.currentTetromino.x > self.columns or
-    self.currentTetromino.y < 1 or
-    self.currentTetromino.y > self.rows then
-        return true
+    local isInvalid = false
+    local isBrickPositionInvalid <const> = function (x, y)
+        if x < 1 or self.columns < x  or
+        y < 1 or self.rows < y  then
+            isInvalid = true
+        end
     end
 
-    return false
+    self.currentTetromino:forEachBrick(isBrickPositionInvalid)
+
+    return isInvalid
 end
 
 function Tetris:placeTetrominoOnField()
-    self.field[self.currentTetromino.y][self.currentTetromino.x] += 1
+    self.currentTetromino:forEachBrick(function (x, y)
+        self.field[y][x] += 1
+    end)
 end
 
 function Tetris:removeTetrominoFromField()
-    self.field[self.currentTetromino.y][self.currentTetromino.x] -= 1
+    self.currentTetromino:forEachBrick(function (x, y)
+        self.field[y][x] -= 1
+    end)
 end
 
 function Tetris:Update(fnDrawOnField)
     if self.currentTetromino == nil then
-        self.currentTetromino = Tetromino(1, 1)
+        self.currentTetromino = Tetromino(1, 1, 1)
         self:placeTetrominoOnField()
     end
 
