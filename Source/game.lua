@@ -27,5 +27,6 @@ function Game:Update()
 
     if isGameOver then
         pd.inputHandlers.pop()
+        -- self.field:Clear()
     end
 end

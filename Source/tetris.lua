@@ -117,9 +117,36 @@ function Tetris:createNewTetromino()
     local initialX <const> = self.columns / 2 - 1
     self.currentTetromino = Tetromino(initialX, 1, self:getNextShape())
     if self:isTetrominoPositionInvalid() then
+        self:placeLastTetromino()
         self:gameOver()
+    else
+        self:placeTetrominoOnField()
     end
-    self:placeTetrominoOnField()
+end
+
+function Tetris:placeLastTetromino()
+    local t = self.currentTetromino
+    self.currentTetromino = nil
+
+    local isTetrominoCollides = function ()
+        local isCollides = false
+        t:ForEachBrick(function (x, y)
+            if self:isPointInsideField(x, y) and self:isPointTaken(x, y) then
+                isCollides = true
+            end
+        end)
+        return isCollides
+    end
+
+    while isTetrominoCollides() do
+        t.y -= 1
+    end
+
+    t:ForEachBrick(function (x, y)
+        if self:isPointInsideField(x, y) then
+            self.field[y][x] += 1
+        end
+    end)
 end
 
 function Tetris:gameOver()
@@ -191,6 +218,10 @@ function Tetris:tryPlaceTetrominoWithOffset()
 end
 
 function Tetris:moveTetromino(fnUpdateAndCheck)
+    if self.currentTetromino == nil then
+        return
+    end
+
     self:removeTetrominoFromField()
     local isTetrominoFixed = fnUpdateAndCheck()
     self:placeTetrominoOnField()
@@ -241,12 +272,20 @@ function Tetris:moveTetrominoRight()
     end)
 end
 
+function Tetris:isPointInsideField(x, y)
+    return 1 <= x and x <= self.columns
+           and
+           1 <= y and y <= self.rows
+end
+
+function Tetris:isPointTaken(x, y)
+    return self.field[y][x] > 0
+end
+
 function Tetris:isTetrominoPositionInvalid()
     local isInvalid = false
     local isBrickPositionInvalid <const> = function (x, y)
-        if x < 1 or self.columns < x or
-        y < 1 or self.rows < y or
-        self.field[y][x] > 0 then
+        if not self:isPointInsideField(x,y) or self:isPointTaken(x,y) then
             isInvalid = true
         end
     end

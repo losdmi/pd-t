@@ -76,6 +76,7 @@ function Tetromino:adjustEmptyFirstRow()
         ---@diagnostic disable-next-line: undefined-field
         if table.indexOfElement(self.rotations[self.rotation], i) ~= nil then
             isEmptyFirstRow = false
+            break
         end
     end
 
