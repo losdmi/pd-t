@@ -307,16 +307,6 @@ function Tetris:removeTetrominoFromField()
     end)
 end
 
-function Tetris:Update(fnDrawOnField)
-    self:draw(fnDrawOnField)
-    return self.isGameOver
-end
-
-function Tetris:draw(fnDrawOnField)
-    for i = 1, #self.field do
-        for j = 1, #self.field[i] do
-            local isActive = self.field[i][j] > 0
-            fnDrawOnField(j, i, isActive)
-        end
-    end
+function Tetris:Update()
+    return self.field, self.isGameOver
 end

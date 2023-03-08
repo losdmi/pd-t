@@ -114,6 +114,12 @@ function Field:DrawAt(x, y, isActive)
     self.field[y][x]:setImage(image)
 end
 
-function Field:Update()
-
+function Field:Update(logicField)
+    local isActive
+    for i = 1, #logicField do
+        for j = 1, #logicField[i] do
+            isActive = logicField[i][j] > 0
+            self:DrawAt(j, i, isActive)
+        end
+    end
 end

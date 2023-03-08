@@ -19,11 +19,8 @@ function Game:Initialize()
 end
 
 function Game:Update()
-    local drawAt <const> = function (x, y, isActive)
-        return self.field:DrawAt(x, y, isActive)
-    end
-    local isGameOver <const> = self.logic:Update(drawAt)
-    self.field:Update()
+    local logicField, isGameOver = self.logic:Update()
+    self.field:Update(logicField)
 
     if isGameOver then
         pd.inputHandlers.pop()
