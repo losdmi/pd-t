@@ -352,7 +352,7 @@ function Tetris:animateGameOverBackwards()
         return
     end
 
-    local currentRow = math.ceil(self.gameOverBackwardsAnimator:currentValue())
+    local currentRow = math.floor(self.gameOverBackwardsAnimator:currentValue())
     if currentRow ~= self.gameOverBackwardsAnimator.lastRow then
     for i = 1, self.columns do
         self.field[currentRow][i] -= 1
