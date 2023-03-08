@@ -1,16 +1,22 @@
+import 'CoreLibs/animator'
 import "CoreLibs/object"
 
 import "tetromino"
 
 local pd <const> = playdate
+local gfx <const> = pd.graphics
+local geo <const> = pd.geometry
 
 class("Tetris").extends()
 
 function Tetris:init(rows, columns)
+    self.gameOverForwardsAnimator = nil
+
     self.rows = rows
     self.columns = columns
 
     self.field = buildField(rows, columns)
+    self:drawGameOverEnd()
 
     self.timers = {}
     self.inputHandler = self:buildInputHandler()
@@ -35,7 +41,7 @@ function buildField(rows, columns)
         end
     end
 
-    field[5][5] = 1
+    -- field[5][5] = 1
 
     return field
 end
@@ -152,6 +158,7 @@ end
 function Tetris:gameOver()
     self.isGameOver = true
     self:removeTimers()
+    self.gameOverForwardsAnimator = gfx.animator.new(1000, self.rows, 0, pd.easingFunctions.linear)
     print("game over")
 end
 
@@ -308,5 +315,96 @@ function Tetris:removeTetrominoFromField()
 end
 
 function Tetris:Update()
+    if self.gameOverForwardsAnimator then
+        self:animateGameOverForwards()
+    end
+    if self.gameOverBackwardsAnimator then
+        self:animateGameOverBackwards()
+    end
+
     return self.field, self.isGameOver
+end
+
+function Tetris:animateGameOverForwards()
+    if self.gameOverForwardsAnimator:ended() then
+        self.gameOverForwardsAnimator = nil
+        self:drawGameOverEnd()
+        self.gameOverBackwardsAnimator = gfx.animator.new(1000, 1, self.rows, pd.easingFunctions.linear)
+        return
+    end
+
+    local currentRow = math.ceil(self.gameOverForwardsAnimator:currentValue())
+    print(currentRow)
+    if currentRow > 0 then
+        for i = 1, self.columns do
+            self.field[currentRow][i] = 0
+        end
+    end
+
+    local previousRow = currentRow + 1
+    if previousRow <= self.rows then
+        for i = 1, self.columns do
+            self.field[previousRow][i] += 1
+        end
+    end
+end
+
+function Tetris:animateGameOverBackwards()
+    if self.gameOverBackwardsAnimator:ended() then
+        self.gameOverBackwardsAnimator = nil
+        return
+    end
+
+    local currentRow = math.ceil(self.gameOverBackwardsAnimator:currentValue())
+    print(currentRow)
+    for i = 1, self.columns do
+        self.field[currentRow][i] -= 1
+    end
+end
+
+function Tetris:drawGameOverEnd()
+    local points <const> = {
+        geo.point.new(4, 3),
+        geo.point.new(5, 3),
+        geo.point.new(6, 3),
+        geo.point.new(7, 3),
+        geo.point.new(4, 4),
+        geo.point.new(4, 5),
+        geo.point.new(5, 5),
+        geo.point.new(6, 5),
+        geo.point.new(7, 5),
+        geo.point.new(4, 6),
+        geo.point.new(4, 7),
+        geo.point.new(5, 7),
+        geo.point.new(6, 7),
+        geo.point.new(7, 7),
+
+        geo.point.new(4, 9),
+        geo.point.new(7, 9),
+        geo.point.new(4, 10),
+        geo.point.new(5, 10),
+        geo.point.new(7, 10),
+        geo.point.new(4, 11),
+        geo.point.new(6, 11),
+        geo.point.new(7, 11),
+        geo.point.new(4, 12),
+        geo.point.new(7, 12),
+
+        geo.point.new(4, 14),
+        geo.point.new(5, 14),
+        geo.point.new(6, 14),
+        geo.point.new(4, 15),
+        geo.point.new(7, 15),
+        geo.point.new(4, 16),
+        geo.point.new(7, 16),
+        geo.point.new(4, 17),
+        geo.point.new(7, 17),
+        geo.point.new(4, 18),
+        geo.point.new(5, 18),
+        geo.point.new(6, 18),
+    }
+
+    for _, p in ipairs(points) do
+        self.field[p.y][p.x] += 1
+    end
 end
