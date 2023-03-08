@@ -334,17 +334,14 @@ function Tetris:animateGameOverForwards()
     end
 
     local currentRow = math.ceil(self.gameOverForwardsAnimator:currentValue())
-    print(currentRow)
     if currentRow > 0 then
         for i = 1, self.columns do
             self.field[currentRow][i] = 0
         end
     end
-
-    local previousRow = currentRow + 1
-    if previousRow <= self.rows then
+    for j = self.rows, currentRow + 1, -1 do
         for i = 1, self.columns do
-            self.field[previousRow][i] += 1
+            self.field[j][i] = 1
         end
     end
 end
@@ -356,10 +353,13 @@ function Tetris:animateGameOverBackwards()
     end
 
     local currentRow = math.ceil(self.gameOverBackwardsAnimator:currentValue())
-    print(currentRow)
+    if currentRow ~= self.gameOverBackwardsAnimator.lastRow then
     for i = 1, self.columns do
         self.field[currentRow][i] -= 1
     end
+end
+
+    self.gameOverBackwardsAnimator.lastRow = currentRow
 end
 
 function Tetris:drawGameOverEnd()
